@@ -1,4 +1,4 @@
-import { names } from '../drizzle/schema.js';
+import { favouriteNames } from '../drizzle/schema.js';
 import { authenticateUser, Sentry } from "./_apiUtils.js";
 import { neon } from '@neondatabase/serverless';
 import { drizzle } from 'drizzle-orm/neon-http';
@@ -17,8 +17,8 @@ export default async function handler(req, res) {
     const db = drizzle(sql);
 
     const result = await db.select()
-      .from(names)
-      .where(eq(names.userId, user.id))
+      .from(favouriteNames)
+      .where(eq(favouriteNames.userId, user.id))
       .limit(50);
 
     res.status(200).json(result);

@@ -12,10 +12,10 @@ export default async function handler(req, res) {
   try {
     const user = await authenticateUser(req);
 
-    const { name } = req.body;
+    const { name, gender } = req.body;
 
-    if (!name) {
-      return res.status(400).json({ error: 'Name is required' });
+    if (!name || !gender) {
+      return res.status(400).json({ error: 'Name and gender are required' });
     }
     
     const sql = neon(process.env.NEON_DB_URL);
@@ -23,6 +23,7 @@ export default async function handler(req, res) {
 
     const result = await db.insert(names).values({ 
       name,
+      gender,
       userId: user.id
     }).returning();
 

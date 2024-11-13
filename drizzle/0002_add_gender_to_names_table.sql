@@ -1,0 +1,2 @@
+ALTER TABLE "names"
+ADD COLUMN "gender" TEXT NOT NULL DEFAULT '';

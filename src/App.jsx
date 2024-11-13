@@ -8,6 +8,7 @@ function App() {
   const [currentPage, setCurrentPage] = createSignal('login');
   const [loading, setLoading] = createSignal(false);
   const [petDescription, setPetDescription] = createSignal('');
+  const [petGender, setPetGender] = createSignal('Male');
   const [suggestedNames, setSuggestedNames] = createSignal([]);
   const [savedNames, setSavedNames] = createSignal([]);
 
@@ -47,8 +48,9 @@ function App() {
     if (!petDescription()) return;
     setLoading(true);
     try {
+      const genderText = petGender().toLowerCase();
       const result = await createEvent('chatgpt_request', {
-        prompt: `Suggest 10 unique pet names for a pet described as: ${petDescription()}. Return the results as a JSON object with the following structure: { "names": ["name1", "name2", ... ] }`,
+        prompt: `Suggest 10 unique ${genderText} pet names for a pet described as: ${petDescription()}. Return the results as a JSON object with the following structure: { "names": ["name1", "name2", ... ] }`,
         response_type: 'json'
       });
       setSuggestedNames(result.names || []);
@@ -87,7 +89,7 @@ function App() {
           'Authorization': `Bearer ${session.access_token}`,
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ name }),
+        body: JSON.stringify({ name, gender: petGender() }),
       });
       if (response.ok) {
         const savedName = await response.json();
@@ -155,8 +157,46 @@ function App() {
               onInput={(e) => setPetDescription(e.target.value)}
               class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-400 focus:border-transparent box-border"
             />
+            <div class="mt-4">
+              <label class="block text-lg font-medium text-gray-700 mb-2">Select the gender of your pet:</label>
+              <div class="flex space-x-4">
+                <label class="flex items-center">
+                  <input
+                    type="radio"
+                    name="gender"
+                    value="Male"
+                    checked={petGender() === 'Male'}
+                    onChange={() => setPetGender('Male')}
+                    class="form-radio h-5 w-5 text-green-600 cursor-pointer"
+                  />
+                  <span class="ml-2 text-gray-700">Male</span>
+                </label>
+                <label class="flex items-center">
+                  <input
+                    type="radio"
+                    name="gender"
+                    value="Female"
+                    checked={petGender() === 'Female'}
+                    onChange={() => setPetGender('Female')}
+                    class="form-radio h-5 w-5 text-green-600 cursor-pointer"
+                  />
+                  <span class="ml-2 text-gray-700">Female</span>
+                </label>
+                <label class="flex items-center">
+                  <input
+                    type="radio"
+                    name="gender"
+                    value="Other"
+                    checked={petGender() === 'Other'}
+                    onChange={() => setPetGender('Other')}
+                    class="form-radio h-5 w-5 text-green-600 cursor-pointer"
+                  />
+                  <span class="ml-2 text-gray-700">Other</span>
+                </label>
+              </div>
+            </div>
             <button
-              class={`mt-4 w-full px-6 py-3 bg-green-500 text-white rounded-lg hover:bg-green-600 transition duration-300 ease-in-out transform hover:scale-105 cursor-pointer ${loading() ? 'opacity-50 cursor-not-allowed' : ''}`}
+              class={`mt-6 w-full px-6 py-3 bg-green-500 text-white rounded-lg hover:bg-green-600 transition duration-300 ease-in-out transform hover:scale-105 cursor-pointer ${loading() ? 'opacity-50 cursor-not-allowed' : ''}`}
               onClick={handleGenerateNames}
               disabled={loading()}
             >
@@ -196,7 +236,10 @@ function App() {
               <ul class="space-y-2">
                 <For each={savedNames()}>
                   {(nameEntry) => (
-                    <li class="bg-gray-50 p-3 rounded-lg">{nameEntry.name}</li>
+                    <li class="bg-gray-50 p-3 rounded-lg flex justify-between items-center">
+                      <span>{nameEntry.name}</span>
+                      <span class="text-gray-600 italic">{nameEntry.gender}</span>
+                    </li>
                   )}
                 </For>
               </ul>
